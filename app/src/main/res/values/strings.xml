@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Music App</string>
+    <string name="track_search_hint">Поиск треков</string>
+    <string name="clear_text_hint">Очистить текст</string>
+    <string name="empty_list_hint">Список пуст</string>
+    <string name="downloaded_tracks">Downloaded Tracks</string>
+    <string name="api_tracks">API Tracks</string>
+</resources>

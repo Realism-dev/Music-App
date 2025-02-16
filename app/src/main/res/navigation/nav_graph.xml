@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/fragment_downloaded_tracks">
+
+    <fragment
+        android:id="@+id/fragment_downloaded_tracks"
+        android:name="dev.realism.tracks.DownloadedTracksFragment"
+        android:label="Downloaded Tracks"
+        app:launchSingleTop="true"
+        tools:layout="@layout/fragment_tracks">
+        <action
+            android:id="@+id/action_downloadedTracks_to_apiTracks"
+            app:destination="@id/fragment_api_tracks" />
+        <action
+            android:id="@+id/action_fragment_downloaded_tracks_to_fragment_play"
+            app:destination="@id/fragment_play" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_api_tracks"
+        android:name="dev.realism.tracks.ApiTracksFragment"
+        android:label="API Tracks"
+        app:launchSingleTop="true"
+        tools:layout="@layout/fragment_tracks">
+        <action
+            android:id="@+id/action_apiTracks_to_downloadedTracks"
+            app:destination="@id/fragment_downloaded_tracks" />
+        <action
+            android:id="@+id/action_fragment_api_tracks_to_fragment_play"
+            app:destination="@id/fragment_play" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_play"
+        android:name="dev.realism.tracks.PlayFragment"
+        android:label="Play Tracks"
+        app:launchSingleTop="true"
+        tools:layout="@layout/fragment_play">
+        <argument
+            android:name="previewUrl"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_fragment_play_to_fragment_downloaded_tracks"
+            app:destination="@id/fragment_downloaded_tracks" />
+        <action
+            android:id="@+id/action_fragment_play_to_fragment_api_tracks"
+            app:destination="@id/fragment_api_tracks" />
+    </fragment>
+
+</navigation>
+
