@@ -6,33 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import dev.realism.data.model.Track
 
-class TracksAdapter(
-    private val viewModel: TracksViewModel,
-    private val onTrackClick: (Track) -> Unit
-) : ListAdapter<Track, TracksAdapter.TrackViewHolder>(DiffCallback()) {
-
-    private var fullTrackList: List<Track> = listOf()
-    var downloadedTracks: List<Track> = emptyList()
-
-    // Функция фильтрации треков по названию
-    fun filterTracks(query: String) {
-        val filteredList = if (query.isEmpty()) {
-            fullTrackList  // Если поиск пустой, показываем все треки
-        } else {
-            fullTrackList.filter {
-                it.title.contains(query, ignoreCase = true)  // Фильтруем по названию трека
-            }
-        }
-        submitList(filteredList)  // Обновляем адаптер с отфильтрованным списком
-    }
-
+class TracksAdapter(private val onTrackClick: (Track) -> Unit) : ListAdapter<Track, TracksAdapter.TrackViewHolder>(DiffCallback()) {
+    var downloadedTracks: List<Int> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_track, parent, false)
@@ -54,11 +35,11 @@ class TracksAdapter(
             artist.text = track.artist
 
             // Проверка на загрузку
-            val isDownloaded = downloadedTracks.contains(track)
+            val isDownloaded = downloadedTracks.contains(track.id)
             Log.d("TRACKS DOWNLOADED", "track is dl $isDownloaded = $track")
 
-            if (isDownloaded) actionImage.setImageResource(R.drawable.ic_download)
-            else actionImage.setImageResource(R.drawable.ic_play)
+            if (isDownloaded) actionImage.setImageResource(R.drawable.ic_play)
+            else actionImage.setImageResource(R.drawable.ic_download)
 
             try {
                 Glide.with(itemView.context).load(track.imageUrl).into(image)

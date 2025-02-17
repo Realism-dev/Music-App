@@ -40,6 +40,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
 
     private var trackList: List<Track> = emptyList()
     private var currentTrackIndex: Int = 0
+    private var currentTrack: Track? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -135,7 +136,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         }
 
         downloadButton.setOnClickListener {
-            playViewModel.downloadCurrentTrack()
+            playViewModel.downloadCurrentTrack(currentTrack!!)
         }
 
         // Инициализация медиаплеера и других действий
@@ -152,7 +153,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         }
 
         // Загрузка списка треков
-        playViewModel.setTrackList(trackList)
+        playViewModel.setTrackList(trackList,currentTrackIndex)
 
         // Устанавливаем трек
         playViewModel.loadTrack(trackList[currentTrackIndex])
@@ -191,6 +192,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             if(index==-1) index = 0
             currentTrackIndex = index
             trackList = trackListFromBundle
+            currentTrack = track
         }
     }
 }

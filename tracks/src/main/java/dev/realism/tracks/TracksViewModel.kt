@@ -14,8 +14,8 @@ class TracksViewModel(private val repository: TracksRepository, private val data
     private val _tracks = MutableLiveData<List<Track>>()
     val tracks: LiveData<List<Track>> get() = _tracks
 
-    private val _downloadedTracks = MutableLiveData<List<Track>>()
-    val downloadedTracks: LiveData<List<Track>> = _downloadedTracks
+    private val _downloadedTracks = MutableLiveData<List<Int>>()
+    val downloadedTracks: LiveData<List<Int>> = _downloadedTracks
 
 
     // Метод загрузки данных с передачей источника
@@ -36,9 +36,9 @@ class TracksViewModel(private val repository: TracksRepository, private val data
     fun getDownloadedTracks() {
         viewModelScope.launch {
             try {
-                val loaded = repository.getTracksFromLocal("")
+                val loaded = repository.getTracksIdFromLocal("")
                 _downloadedTracks.value = loaded
-                Log.d("TRACKS DOWNLOADED LIST DONE", _downloadedTracks.value.toString())
+                Log.d("TRACKS DOWNLOADED LIST DONE", loaded.toString())
             }
             catch (e:Exception){
                 Log.d("TRACKS DOWNLOADED LIST FAIL", _downloadedTracks.value.toString())

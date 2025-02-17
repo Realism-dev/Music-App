@@ -4,7 +4,9 @@ import android.util.Log
 import dev.realism.data.api.TrackApiResponse
 import dev.realism.data.model.TrackDao
 import dev.realism.data.model.Track
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import java.io.File
@@ -15,18 +17,44 @@ import javax.inject.Inject
 class TracksRepository @Inject constructor(
     private val apiService: TrackApiService,
     private val trackDao: TrackDao,
-    private val filesDir: File
+    private val filesDir: File,
+    coroutineScope: CoroutineScope
 ) {
+    private var downloadedTracksId = mutableListOf<Int>()
+
+    init {
+        coroutineScope.launch {
+            downloadedTracksId = getTracksIdFromLocal("").toMutableList()
+        }
+    }
+
     // Получение треков по запросу из локальной базы данных
     suspend fun getTracksFromLocal(query: String): List<Track> {
         val list = if (query.isEmpty())
         {
-            Log.d("TRACKS DOWNLOADED","getAllTracks")
+//            Log.d("TRACKS DOWNLOADED","getAllTracks")
             trackDao.getAllTracks()
         }
         else {
-            Log.d("TRACKS LOADED","query = $query")
+//            Log.d("TRACKS LOADED","query = $query")
             trackDao.getTracks(query)
+        }
+//        Log.d("TRACKS LOADED",list.toString())
+        return list
+    }
+
+    fun getTracksIdFromCash() = downloadedTracksId
+
+    // Получение ID треков по запросу из локальной базы данных
+    suspend fun getTracksIdFromLocal(query: String): List<Int> {
+        val list = if (query.isEmpty())
+        {
+            Log.d("TRACKS DOWNLOADED","getAllTracks")
+            trackDao.getAllTracksId()
+        }
+        else {
+            Log.d("TRACKS LOADED","query = $query")
+            trackDao.getTracksId(query)
         }
         Log.d("TRACKS LOADED",list.toString())
         return list
@@ -104,19 +132,27 @@ class TracksRepository @Inject constructor(
 
     // Сохраняем трек во внутреннем хранилище и создаем запись в таблице Tracks
     private suspend fun saveTrack(body: ResponseBody, track: Track) {
-        val file = File(filesDir, track.id.toString())
-        val outputStream =
+        try {
+            val file = File(filesDir, track.id.toString())
+            val outputStream =
+                withContext(Dispatchers.IO) {
+                    FileOutputStream(file)
+                }
+            body.byteStream().copyTo(outputStream)
             withContext(Dispatchers.IO) {
-                FileOutputStream(file)
+                outputStream.close()
             }
-        body.byteStream().copyTo(outputStream)
-        withContext(Dispatchers.IO) {
-            outputStream.close()
+            track.apply {
+                uri = file.absolutePath
+            }
+            trackDao.insertTrack(track)
+            downloadedTracksId.add(track.id)
         }
-        track.apply {
-            uri = file.absolutePath
+        catch (e:Exception){
+            Log.d("DEEZER API DOWNLOAD FAIL",e.toString())
+            Log.d("DEEZER API DOWNLOAD FAIL",track.toString())
         }
-        trackDao.insertTrack(track)
+
     }
 
     // Сохраняем трек во внутреннем хранилище и создаем запись в таблице Tracks
@@ -134,10 +170,11 @@ class TracksRepository @Inject constructor(
             uri = file.absolutePath
         }
         trackDao.insertTrack(track)
+        downloadedTracksId.add(track.id)
     }
 
-    suspend fun isTrackDownLoaded(track: Track): Boolean {
-        return trackDao.findTrack(track.id)>0
+    fun isTrackDownLoaded(track: Track): Boolean {
+        return downloadedTracksId.contains(track.id)
     }
 }
 

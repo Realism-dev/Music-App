@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -61,7 +62,7 @@ abstract class BaseTracksFragment : Fragment(R.layout.fragment_tracks) {
         viewModel = ViewModelProvider(this, ViewModelFactory(repository, dataSource))[TracksViewModel::class.java]
 
         // Инициализация адаптера
-        adapter = TracksAdapter(viewModel){ track ->
+        adapter = TracksAdapter{ track ->
             navigationProvider.navigateToPlayFragment(adapter.currentList,track)
         }
         val recyclerView: RecyclerView = view.findViewById(R.id.tracksRecyclerView)
@@ -77,6 +78,7 @@ abstract class BaseTracksFragment : Fragment(R.layout.fragment_tracks) {
 
         viewModel.downloadedTracks.observe(viewLifecycleOwner){tracks->
             adapter.downloadedTracks = tracks
+            Log.d("TRACKS DOWNLOADED LIST ADAPTER", adapter.downloadedTracks.toString())
         }
 
         //Выполняем первичный поиск загруженных треков

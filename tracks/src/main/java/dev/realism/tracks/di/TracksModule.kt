@@ -7,14 +7,15 @@ import dev.realism.data.TrackApiService
 import dev.realism.data.model.TrackDao
 import dev.realism.data.TracksRepository
 import dev.realism.tracks.ViewModelFactory
+import kotlinx.coroutines.CoroutineScope
 import java.io.File
 
 @Module
 class TracksModule {
 
     @Provides
-    fun provideTracksRepository(apiService: TrackApiService, trackDao: TrackDao, fileDir: File): TracksRepository {
-        return TracksRepository(apiService, trackDao, fileDir)
+    fun provideTracksRepository(apiService: TrackApiService, trackDao: TrackDao, fileDir: File, scope: CoroutineScope): TracksRepository {
+        return TracksRepository(apiService, trackDao, fileDir, scope)
     }
 
     @Provides

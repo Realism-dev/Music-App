@@ -3,14 +3,12 @@ package dev.realism.tracks
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.realism.data.TracksRepository
 import dev.realism.data.model.Track
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -54,7 +52,7 @@ class PlayViewModel @Inject constructor(
         mediaPlayer = MediaPlayer()
     }
 
-    fun downloadCurrentTrack() {
+    fun downloadCurrentTrack(track: Track) {
         // При начале загрузки показываем индикатор
         _isDownLoading.value = true
         _isDownLoaded.value = false // Пока не загружено
@@ -62,7 +60,7 @@ class PlayViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 // Загрузить трек
-                repository.downloadTrack(trackList[currentTrackIndex])
+                repository.downloadTrack(track)
 
                 // После успешной загрузки обновляем состояние
                 _isDownLoading.value = false
@@ -77,14 +75,15 @@ class PlayViewModel @Inject constructor(
 
 
     // Логика для проверки, скачан ли трек
-    private suspend fun isTrackDownloaded(): Boolean {
+    private fun isTrackDownloaded(track: Track): Boolean {
         var result  = true
         try {
-            val track = trackList[currentTrackIndex]
             result = repository.isTrackDownLoaded(track)
+//            Log.d("TRACK DOWNLOADED DONE",track.toString())
+//            Log.d("TRACK DOWNLOADED CASH",repository.getTracksIdFromCash().toString())
         }
         catch (e:Exception){
-            Log.d("TRACK DOWNLOADED",e.toString())
+//            Log.d("TRACK DOWNLOADED FAILED",e.toString())
         }
         return result
     }
@@ -93,10 +92,7 @@ class PlayViewModel @Inject constructor(
         _trackTitle.value = track.title
         _trackArtist.value = track.artist
         _trackImage.value = track.imageUrl ?: ""
-
-        viewModelScope.launch {
-            _isDownLoaded.value = isTrackDownloaded()
-        }
+        _isDownLoaded.value = isTrackDownloaded(track)
 
         try {
             mediaPlayer?.reset()
@@ -189,7 +185,8 @@ class PlayViewModel @Inject constructor(
         return String.format(Locale.getDefault(), "%02d:%02d", minutes, remainingSeconds)
     }
 
-    fun setTrackList(tracks: List<Track>) {
+    fun setTrackList(tracks: List<Track>, index:Int) {
+        currentTrackIndex = index
         trackList = tracks
     }
 
@@ -202,4 +199,3 @@ class PlayViewModel @Inject constructor(
         mediaPlayer?.release()
     }
 }
-

@@ -15,6 +15,12 @@ interface TrackDao {
     @Query("SELECT * FROM tracks ORDER BY artist,title")
     suspend fun getAllTracks(): List<Track>
 
+    @Query("SELECT DISTINCT id FROM tracks")
+    suspend fun getAllTracksId(): List<Int>
+
+    @Query("SELECT DISTINCT id FROM tracks WHERE title LIKE :query OR artist LIKE :query ORDER BY artist,title")
+    suspend fun getTracksId(query: String): List<Int>
+
     @Query("SELECT previewUrl FROM tracks WHERE id= :trackId")
     suspend fun getTrackUrl(trackId: Int): String
 
