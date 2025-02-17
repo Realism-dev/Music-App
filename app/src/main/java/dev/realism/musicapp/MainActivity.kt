@@ -1,16 +1,15 @@
 package dev.realism.musicapp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.realism.data.model.Track
-import dev.realism.tracks.di.NavigationProvider
 import dev.realism.tracks.ARG_TRACK
 import dev.realism.tracks.ARG_TRACK_LIST
+import dev.realism.tracks.di.NavigationProvider
 
 class MainActivity : AppCompatActivity(), NavigationProvider {
     private lateinit var navController: NavController
